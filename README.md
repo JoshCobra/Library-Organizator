@@ -13,7 +13,7 @@ Los usuarios pueden agregar múltiples archivos de video a una biblioteca centra
 
 
 ## Instrucciones de Uso
--Instalación:
+- Instalación:
 
   - Asegúrate de tener Python instalado en tu sistema.
   - Descarga o clona el repositorio en tu máquina local.
