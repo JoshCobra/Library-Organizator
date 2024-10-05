@@ -1,0 +1,2 @@
+python -c "import sqlite3; print('sqlite3 está disponible')"
+python -c "import tkinter; print('tkinter está disponible')"
