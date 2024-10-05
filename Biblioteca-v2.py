@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import tkinter as tk
+import shutil
 from tkinter import filedialog, messagebox, simpledialog
 
 # Configuración de las carpetas
@@ -24,6 +25,29 @@ CREATE TABLE IF NOT EXISTS file_lists (
 )
 ''')
 conn.commit()
+
+def clone_library(destination_path):
+    # Clonar la biblioteca
+    if not os.path.exists(destination_path):
+        os.makedirs(destination_path)  # Crear la ruta de destino si no existe
+
+    # Copiar todos los archivos de la biblioteca
+    for item in os.listdir(library_dir):
+        source_item = os.path.join(library_dir, item)
+        dest_item = os.path.join(destination_path, item)
+        
+        if os.path.isdir(source_item):
+            shutil.copytree(source_item, dest_item)  # Copiar directorio
+        else:
+            shutil.copy2(source_item, dest_item)  # Copiar archivo
+
+    # Clonar listas
+    for list_name in os.listdir(lists_dir):
+        source_list = os.path.join(lists_dir, list_name)
+        dest_list = os.path.join(destination_path, list_name)
+        
+        if os.path.isdir(source_list):
+            shutil.copytree(source_list, dest_list)  # Copiar directorio de listas
 
 # Funciones de backend (sin interfaz)
 def add_files_to_library(file_paths):
@@ -87,6 +111,11 @@ class LibraryApp:
         self.root.title('Tu Gestión de Biblioteca y Listas')
         
         # Widgets
+
+        # Botón para clonar la biblioteca
+        self.clone_library_btn = tk.Button(root, text="Clonar Biblioteca", command=self.clone_library_ui)
+        self.clone_library_btn.pack(pady=5)
+
         self.label = tk.Label(root, text="Biblioteca y Listas", font=("Arial", 16))
         self.label.pack(pady=10)
         
@@ -106,7 +135,6 @@ class LibraryApp:
         self.delete_file_btn = tk.Button(root, text="Eliminar Archivo", command=self.delete_file)
         self.delete_file_btn.pack(pady=5)
 
-
         self.list_name_entry = tk.Entry(root, width=30)
         self.list_name_entry.pack(pady=5)
         self.list_name_entry.insert(0, "Nombre de la Lista a Manipular")
@@ -117,6 +145,13 @@ class LibraryApp:
         #Llamar la funcion para mostrar todos los archivos de la biblioteca
         self.update_library_view()
 
+    def clone_library_ui(self):
+        destination_path = filedialog.askdirectory(title="Seleccionar Ruta de Destino")
+        if destination_path:
+            clone_library(destination_path)
+            messagebox.showinfo("Clonación Completa", "La biblioteca ha sido clonada exitosamente.")
+
+
     def add_files(self):
         file_paths = filedialog.askopenfilenames()
         if file_paths:
@@ -126,6 +161,7 @@ class LibraryApp:
                 self.update_library_view() #Actualiza en tiempo real 
             else:
                 messagebox.showwarning("Error", "No se pudo añadir los archivos.")
+
     def delete_file(self):
         file_name = simpledialog.askstring("Eliminar archivo","Nombre del archivo a eliminar:")
         if not file_name:
